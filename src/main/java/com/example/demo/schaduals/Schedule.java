@@ -25,10 +25,10 @@ public class Schedule{
    @Autowired
     private SchedulesService schadualService;
    
-//    @Scheduled(cron = "0 0/1 * 1/1 * ?")//adjust schadual to  every min
-//   public void cronJobSchTest() {
-//        schadualService.testSchadual();     
-//   }
+    @Scheduled(cron = "0 0/1 * 1/1 * ?")//adjust schadual to  every min
+   public void cronJobSchTest() {
+        schadualService.testSchadual();     
+   }
     //https://stackoverflow.com/questions/42961533/run-a-job-with-spring-scheduled-on-specific-days
    //weekly
    @Scheduled(cron = "0 0 9 * * SUN")//adjust schadual to  each sunday @ 9:00:00 am

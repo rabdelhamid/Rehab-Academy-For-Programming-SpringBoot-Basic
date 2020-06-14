@@ -5,6 +5,7 @@
  */
 package com.example.demo.schaduals;
 
+import java.util.Date;
 import org.springframework.stereotype.Service;
 
 /**
@@ -16,6 +17,6 @@ public class SchedulesService {
     
     public void testSchadual()
     {
-        System.out.print("*************Test Schadual***************"+"\n");
+        System.out.print(new Date()+" :*************Test Schadual***************"+"\n");
     }
 }
