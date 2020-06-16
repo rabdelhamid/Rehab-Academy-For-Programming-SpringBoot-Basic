@@ -10,8 +10,12 @@ package com.example.demo.exceptions;
 
 import com.example.demo.model.entities.dtos.exceptions.ErrorDetails;
 import java.util.Date;
+import java.util.Locale;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,14 +37,12 @@ public class GeneralExceptionHandler extends ResponseEntityExceptionHandler {
 private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GeneralExceptionHandler.class);
 
    
-    @ExceptionHandler(NoDataFoundException.class)
-    public final ResponseEntity<ErrorDetails> handleUserNoDataFoundException(NoDataFoundException ex, WebRequest request) {
-        LOGGER.warn(ex.getMessage());
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
-                request.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    private final MessageSource messageSource;
+    @Autowired
+    public GeneralExceptionHandler(MessageSource messageSource) {
+        this.messageSource = messageSource;
     }
-    
+     //without localization
     @ExceptionHandler(BusinessException.class)
     public final ResponseEntity<ErrorDetails> handleBusinessException(BusinessException ex, WebRequest request) {
         LOGGER.warn(ex.getMessage());
@@ -51,6 +53,28 @@ private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(GeneralEx
         }
         return new ResponseEntity<>(errorDetails, HttpStatus.NOT_ACCEPTABLE);
     }
+    //with localization
+    @ExceptionHandler(LocalizedBusinessException.class)
+    public final ResponseEntity<ErrorDetails> handleLocalizedBusinessException(LocalizedBusinessException ex, WebRequest request) {
+        LOGGER.warn(ex.getMessage());
+
+        String errorMessage = messageSource.getMessage(ex.getMessage(),null, LocaleContextHolder.getLocale());
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), errorMessage,
+                request.getDescription(false));
+        if (ex.getParams() != null) {
+            errorDetails.setParamObjects(ex.getParams());
+        }
+        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_ACCEPTABLE);
+    }
+    
+    @ExceptionHandler(NoDataFoundException.class)
+    public final ResponseEntity<ErrorDetails> handleUserNoDataFoundException(NoDataFoundException ex, WebRequest request) {
+        LOGGER.warn(ex.getMessage());
+        ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
+                request.getDescription(false));
+        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+   
     @Override  
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request)   
     {  
